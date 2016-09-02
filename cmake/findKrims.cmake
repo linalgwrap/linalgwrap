@@ -38,8 +38,6 @@ option(AUTOCHECKOUT_MISSING_REPOS "Automatically checkout missing repositories" 
 #
 # -------
 #
-# Unset building rapidcheck in this scope
-set(BUILD_EXTERNAL_KRIMS off)
 
 if (TARGET "${krims_DEBUG_TARGET}"  OR TARGET "${krims_RELEASE_TARGET}")
 	message(STATUS "Found target krims, assume krims already configured for build.")
@@ -62,7 +60,6 @@ if ("${krims_DIR}" STREQUAL "krims_DIR-NOTFOUND")
 
 		# TODO check version of krims!
 
-		# Print message and return
 		set(BUILD_EXTERNAL_KRIMS on)
 		return()
 	endif()
