@@ -42,8 +42,6 @@ flags = [
     # Compile debug code as well
     '-DDEBUG',
     # Compile extra code blocks:
-    '-DLINALGWRAP_HAVE_GLIBC_STACKTRACE',
-    '-DLINALGWRAP_HAVE_LIBSTDCXX_DEMANGLER',
     '-DLINALGWRAP_HAVE_ARMADILLO',
     # Compile as c++14
     '-std=c++14',
@@ -56,6 +54,10 @@ flags = [
     '-I', 'src',
     '-isystem', 'external/rapidcheck/include',
     '-isystem', 'external/rapidcheck/ext/catch/include',
+    '-isystem', 'external/krims/src',
+    '-isystem', '../krims/src',
+    '-isystem', '../rapidcheck/ext/catch/include',
+    '-isystem', '../rapidcheck/include',
 ]
 
 def DirectoryOfThisScript():

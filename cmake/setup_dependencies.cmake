@@ -42,52 +42,38 @@ set(LINALGWRAP_DEFINITIONS "")
 set(LINALGWRAP_DEFINITIONS_DEBUG "")
 set(LINALGWRAP_DEFINITIONS_RELEASE "")
 
-##################
-#-- rapidcheck --#
-##################
+#############
+#-- krims --#
+#############
+# Switch off building external krims by default.
+# (Needs to be done here such that in the current scope by default
+# this value is off, even if krims is build as a subproject to
+# another project where this variable was set to ON.)
+set(BUILD_EXTERNAL_KRIMS off)
 
-if (LINALGWRAP_WITH_EXTERNAL_RAPIDCHECK AND LINALGWRAP_ENABLE_TESTS)
-	# We need to compile rapidcheck further down in the externals
-	# add it to the dependencies right here:
-	set(LINALGWRAP_DEPENDENCIES_TEST ${LINALGWRAP_DEPENDENCIES_TEST} rapidcheck)
-elseif(LINALGWRAP_ENABLE_TESTS)
-	message(FATAL_ERROR "Currently only the build with rapidcheck as a submodule is supported")
-	#TODO change this
+# Find at least version 0.0.0
+set(KRIMS_VERSION 0.0.0)
+include(cmake/findKrims.cmake)
+
+foreach (build ${DRB_BUILD_TYPES})
+	set(LINALGWRAP_DEPENDENCIES_${build} ${LINALGWRAP_DEPENDENCIES_${build}} ${krims_${build}_TARGET})
+endforeach()
+
+############################
+#-- rapidcheck and catch --#
+############################
+# Switch off building external rapidcheck by default.
+# (see above for reasons)
+set(BUILD_EXTERNAL_RAPIDCHECK off)
+
+if (LINALGWRAP_ENABLE_TESTS)
+	# We need to setup rapidcheck and catch for the tests:
+	include(cmake/findRapidcheck.cmake)
+	set(LINALGWRAP_DEPENDENCIES_TEST ${LINALGWRAP_DEPENDENCIES_TEST} ${rapidcheck_TARGET})
+
+	include(cmake/findCatch.cmake)
+	set(LINALGWRAP_DEPENDENCIES_TEST ${LINALGWRAP_DEPENDENCIES_TEST} ${catch_TARGET})
 endif()
-
-##############
-#-- catch  --#
-##############
-
-if (LINALGWRAP_WITH_EXTERNAL_CATCH AND LINALGWRAP_ENABLE_TESTS)
-	# We need to setup catch further down in the externals
-	# so add it to the dependencies
-	set(LINALGWRAP_DEPENDENCIES_TEST ${LINALGWRAP_DEPENDENCIES_TEST} common_catch)
-elseif(LINALGWRAP_ENABLE_TESTS)
-	# Note: We need the target to have the name common_catch and not just "catch"
-	#       since rapidcheck uses this target name internally.
-	add_library(common_catch INTERFACE)
-
-	find_path(catch_INCLUDE_DIR catch.hpp
-		PATHS
-		$ENV{catch_INCLUDE_DIR}
-		DOC "catch include directory"
-	)
-
-	if ("${catch_INCLUDE_DIR}" STREQUAL "catch_INCLUDE_DIR-NOTFOUND")
-		message(FATAL_ERROR "Could not find catch include directory. 
-Either disable LINALGWRAP_WITH_EXTERNAL_CATCH or provide a hint where \
-the catch include file can be found via the environment variable \
-catch_INCLUDE_DIR.")
-	endif()
-
-	message(STATUS "Found system-provided catch at ${catch_INCLUDE_DIR}/catch.hpp")
-
-	target_include_directories(common_catch INTERFACE ${catch_INCLUDE_DIR})
-	set(GSCF_DEPENDENCIES_TEST  ${LINALGWRAP_DEPENDENCIES_TEST} common_catch)
-endif()
-
-
 
 #################
 #-- armadillo --#

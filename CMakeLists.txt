@@ -21,12 +21,10 @@
 
 cmake_minimum_required(VERSION 3.0.0)
 
-# Set the module path
-list(APPEND CMAKE_MODULE_PATH  "${CMAKE_CURRENT_LIST_DIR}/cmake/modules")
-
 # Load the DebugReleaseBuild module for a simultaneous Debug and Release
 # and release build and initialise it.
-include(DebugReleaseBuild)
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/IncludeKrimsCmakeModule.cmake")
+include_krims_cmake_module(DebugReleaseBuild)
 drb_init()
 
 ##########################################################################
@@ -39,22 +37,19 @@ set(PackageModuleLocation share/cmake)
 option(LINALGWRAP_ENABLE_TESTS "Build linalgwrap tests" ON)
 option(LINALGWRAP_ENABLE_EXAMPLES "Build linalgwrap examples" ON)
 
-option(LINALGWRAP_WITH_EXTERNAL_RAPIDCHECK "Use external rapidcheck from git repository (ON) or system-provided (OFF)." ON)
-option(LINALGWRAP_INSTALL_RAPIDCHECK "If LINALGWRAP_WITH_EXTERNAL_RAPIDCHECK is ON, should rapidcheck be installed as well?" OFF)
-
-option(LINALGWRAP_WITH_EXTERNAL_CATCH "Use external catch library from git repository (ON) or system-provided version (OFF)." ON)
-option(LINALGWRAP_INSTALL_CATCH "If LINALGWRAP_WITH_EXTERNAL_CATCH is ON, should catch be installed as well?" OFF)
-
 ##########################################################################
 # Project setup
 
 # enable the new version feature introduced in cmake 3.0.0
 cmake_policy(SET CMP0048 NEW)
 project(linalgwrap VERSION 0.1.0)
+message("\n#")
+message("# Configuring ${PROJECT_NAME}")
+message("#")
 
 # Global include directories for this project:
-include_directories("${linalgwrap_SOURCE_DIR}/src")  # for default sources
-include_directories("${linalgwrap_BINARY_DIR}/src")  # for generated sources
+include_directories("${PROJECT_SOURCE_DIR}/src")  # for default sources
+include_directories("${PROJECT_BINARY_DIR}/src")  # for generated sources
 
 # enable testing of this project
 enable_testing()
@@ -62,8 +57,8 @@ enable_testing()
 ##########################################################################
 # Setup hard and optional dependencies and find components
 
-# Determine and setup compiler flags:
-drb_setup_compiler_flags()
+# Determine and setup compiler flags, enforcing C++11
+drb_setup_compiler_flags(11)
 
 # setup hard dependencies
 include(cmake/setup_dependencies.cmake)
@@ -74,12 +69,12 @@ include(cmake/setup_optional.cmake)
 ##########################################################################
 # Pass on to subdirectories:
 
+# The external dependencies via submodules or similar
+add_subdirectory(external)
+
 # The src directory does most of the work: Here the library is build and 
 # installation is configured.
 add_subdirectory(src)
-
-# The external dependencies via submodules or similar
-add_subdirectory(external)
 
 # Add subdirectories for the test.
 if(LINALGWRAP_ENABLE_TESTS) 
@@ -93,4 +88,4 @@ endif()
 
 ##########################################################################
 # Finally install modules and packages:
-include(cmake/install_modules_packages.cmake)
+include(cmake/install_package.cmake)

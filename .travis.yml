@@ -29,31 +29,6 @@ branches:
     - /^dev-.*$/
     - /^dev_.*$/
 
-compiler:
-  - clang
-
-install:
-  # Make sure rapidcheck and catch are there.
-  - git submodule update --init --recursive
-  #
-  # Install what is needed to add repos:
-  - sudo apt-get install -y software-properties-common
-  #
-  # Repo for clang-3.8:
-  - sudo wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -
-  - sudo add-apt-repository -y "deb http://llvm.org/apt/trusty/ llvm-toolchain-trusty-3.8 main"
-  #
-  # Repo for newer gcc, libstdc++
-  - sudo add-apt-repository -y "ppa:ubuntu-toolchain-r/test"
-  #
-  # Update and install packages:
-  #       - ninja-build as faster build system
-  #       - recent clang (clang-3.8)
-  #       - wide-spread gcc (g++4.9)
-  #       - armadillo library and boost dependance
-  - sudo apt-get update
-  - sudo apt-get install -y ninja-build g++-4.9 clang-3.8 libarmadillo-dev libboost-dev
-
 env:
   global:
     # Use two cores for the build
@@ -61,18 +36,64 @@ env:
     #
     # Use a known-to-work rapidcheck seed
     - RC_PARAMS="seed=16920708173099178154 verbose_progress=1 verbose_shrinking=1"
-  matrix:
-    # build with default clang on Ubuntu Trusty (== clang 3.5) and run release tests
-    - CXX_COMPILER="clang++"     CC_COMPILER="clang"     TESTCASE="linalgwrap_tests_RELEASE"
     #
-    # build with clang 3.8 and run debug tests
-    - CXX_COMPILER="clang++-3.8" CC_COMPILER="clang-3.8" TESTCASE="linalgwrap_tests_DEBUG"
+    # Dependencies we need to install
+    - DEPEND_PKG="libarmadillo-dev libboost-dev"
+
+matrix:
+  allow_failures:
+    # gcc-4.8 (c++11 and without tests, since rapidcheck does not compile like this)
+    - env: CC_COMPILER="gcc" CXX_COMPILER="g++" EXTRA_OPTS="-DLINALGWRAP_ENABLE_TESTS=OFF"
+  #
+  include:
+    # Clang 3.5 with disabled c++14 support
+    - install:
+      # Repo for g++-4.9 (to avoid buggy libstdc++)
+      - sudo add-apt-repository -y "ppa:ubuntu-toolchain-r/test"
+      # Update and install
+      - sudo apt-get update
+      - sudo apt-get install -y ninja-build g++-4.9 $DEPEND_PKG
+      compiler: clang
+      env: CC_COMPILER="clang" CXX_COMPILER="clang++" TESTCASE="linalgwrap_tests_RELEASE"
+        EXTRA_OPTS="-DDRB_HAS_CXX14_SUPPORT=OFF -DDRB_HIGHEST_CXX_SUPPORT=11"
     #
-    # build with gcc 4.9 and run release tests
-    - CXX_COMPILER="g++-4.9"     CC_COMPILER="gcc-4.9"   TESTCASE="linalgwrap_tests_RELEASE"
+    # Clang 3.8 (has c++14)
+    - install:
+      # Repo for g++-4.9 (has libstdc++ is compatible to c++11, but not c++14)
+      - sudo add-apt-repository -y "ppa:ubuntu-toolchain-r/test"
+      # Repo for clang-3.8
+      - sudo wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -
+      - sudo add-apt-repository -y "deb http://llvm.org/apt/trusty/ llvm-toolchain-trusty-3.8 main"
+      # Update and install
+      - sudo apt-get update
+      - sudo apt-get install -y ninja-build clang-3.8 g++-4.9 $DEPEND_PKG
+      compiler: clang
+      env: CC_COMPILER="clang-3.8" CXX_COMPILER="clang++-3.8" TESTCASE="linalgwrap_tests_DEBUG"
+    #
+    # gcc-4.8 (c++11 and without tests, since rapidcheck does not compile like this)
+    - install:
+      - sudo apt-get install -y ninja-build $DEPEND_PKG
+      compiler: gcc
+      env: CC_COMPILER="gcc" CXX_COMPILER="g++" EXTRA_OPTS="-DLINALGWRAP_ENABLE_TESTS=OFF"
+    #
+    # gcc-5 (with tests and c++14)
+    - install:
+      # Repo for g++-5
+      - sudo add-apt-repository -y "ppa:ubuntu-toolchain-r/test"
+      # Update and install
+      - sudo apt-get update
+      - sudo apt-get install -y ninja-build g++-5 $DEPEND_PKG
+      compiler: gcc
+      env: CC_COMPILER="gcc-5" CXX_COMPILER="g++-5" TESTCASE="linalgwrap_tests_RELEASE"
 
 script:
   - mkdir build && cd build
-  - cmake -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCMAKE_C_COMPILER=${CC_COMPILER} -DCMAKE_BUILD_TYPE=DebugRelease -DRC_ENABLE_TESTS=OFF -GNinja ..
+  - cmake -DCMAKE_CXX_COMPILER=${CXX_COMPILER} -DCMAKE_C_COMPILER=${CC_COMPILER}
+           -DCMAKE_BUILD_TYPE=DebugRelease ${EXTRA_OPTS}
+           -DAUTOCHECKOUT_MISSING_REPOS=ON
+           -DRC_ENABLE_TESTS=OFF
+           -DKRIMS_ENABLE_TESTS=OFF -DKRIMS_ENABLE_EXAMPLES=OFF
+           -GNinja ..
   - cmake --build  . -- -j ${CORES}
-  - ctest --output-on-failure -R ${TESTCASE}
+  - if [ "${TESTCASE}" ]; then ctest --output-on-failure -R ${TESTCASE}; else true; fi
+

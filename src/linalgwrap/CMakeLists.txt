@@ -31,7 +31,7 @@ set(LINALGWRAP_SOURCES
 )	
 
 # Dump the current version as an include file.
-include(WriteVersionHeader)
+include_krims_cmake_module(WriteVersionHeader)
 WRITE_VERSION_HEADER("${CMAKE_BINARY_DIR}/src/linalgwrap/version_defs.hh")
 
 # add the libraries for Debug and Release:

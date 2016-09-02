@@ -19,15 +19,28 @@
 ##
 ## ---------------------------------------------------------------------
 
-# Check we have at least the required version:
-cmake_minimum_required(VERSION 3.0.0)
+# Installs the cmake package information this project provides
+#
+# Requires the variable PackageModuleLocation to be set.
 
-# Set basedir for this module
-set(DRB_DIR "${CMAKE_CURRENT_LIST_DIR}/DebugReleaseBuild"
-	CACHE INTERNAL "Base directory of the DebugReleaseBuild module.")
+# Write a basic version file for linalgwrap
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+	"${linalgwrap_BINARY_DIR}/linalgwrapConfigVersion.cmake"
+	COMPATIBILITY AnyNewerVersion
+)
 
-# include other files:
-include("${DRB_DIR}/drb_init.cmake")
-include("${DRB_DIR}/drb_utils.cmake")
-include("${DRB_DIR}/drb_setup_compiler_flags.cmake")
-include("${DRB_DIR}/drb_targets.cmake")
+# Adjust a configure file
+configure_file(cmake/linalgwrapConfig.cmake.in
+	"${linalgwrap_BINARY_DIR}/linalgwrapConfig.cmake"
+	COPYONLY
+)
+
+# Set an export location:
+install(FILES
+	"${linalgwrap_BINARY_DIR}/linalgwrapConfig.cmake"
+	"${linalgwrap_BINARY_DIR}/linalgwrapConfigVersion.cmake"
+	DESTINATION "${PackageModuleLocation}/linalgwrap"
+	COMPONENT devel
+)
+

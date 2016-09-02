@@ -1,3 +1,4 @@
+#!/bin/sh
 ## ---------------------------------------------------------------------
 ##
 ## Copyright (C) 2016 by the linalgwrap authors
@@ -19,36 +20,24 @@
 ##
 ## ---------------------------------------------------------------------
 
-# Installs the cmake modules and cmake package information this project
-# provides
 #
-# Requires the variable PackageModuleLocation to be set.
+# Settings
+#
+# The git repo to checkout
+FROM="https://github.com/linalgwrap/krims"
 
-# Installing cmake modules
-install(DIRECTORY "${linalgwrap_SOURCE_DIR}/cmake/modules"
-	DESTINATION ${PackageModuleLocation}
-	COMPONENT devel
-	FILES_MATCHING PATTERN "*.cmake"
-)
+# Folder to check it out to
+WHAT="krims"
 
-# Write a basic version file for linalgwrap
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file(
-	"${linalgwrap_BINARY_DIR}/linalgwrapConfigVersion.cmake"
-	COMPATIBILITY AnyNewerVersion
-)
+# Interval: How often to update:
+INTERVAL="1 hour"
 
-# Adjust a configure file
-configure_file(cmake/linalgwrapConfig.cmake.in
-	"${linalgwrap_BINARY_DIR}/linalgwrapConfig.cmake"
-	COPYONLY
-)
+# File to use in order to test a successful checkout
+CHECKFILE="CMakeLists.txt"
 
-# Set an export location:
-install(FILES
-	"${linalgwrap_BINARY_DIR}/linalgwrapConfig.cmake"
-	"${linalgwrap_BINARY_DIR}/linalgwrapConfigVersion.cmake"
-	DESTINATION "${PackageModuleLocation}/linalgwrap"
-	COMPONENT devel
-)
+if [ ! -f "$PWD/get.lib.sh" ]; then
+	echo "PWD needs to be the location of the get.lib.sh file."
+	exit 1
+fi
 
+. "$PWD/get.lib.sh"
