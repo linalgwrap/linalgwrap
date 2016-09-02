@@ -77,11 +77,11 @@ matrix:
       env: CC_COMPILER="gcc-5" CXX_COMPILER="g++-5" TESTCASE="linalgwrap_tests_RELEASE"
   #
   allow_failures:
-    # gcc-4.8 (c++11 and without tests, since rapidcheck does not compile like this)
-    - install:
-      - sudo apt-get install -y ninja-build $DEPEND_PKG
-      compiler: gcc
-      env: CC_COMPILER="gcc" CXX_COMPILER="g++" EXTRA_OPTS="-DLINALGWRAP_ENABLE_TESTS=OFF"
+  # gcc-4.8 (c++11 and without tests, since rapidcheck does not compile like this)
+  - install:
+    - sudo apt-get install -y ninja-build $DEPEND_PKG
+    compiler: gcc
+    env: CC_COMPILER="gcc" CXX_COMPILER="g++" EXTRA_OPTS="-DLINALGWRAP_ENABLE_TESTS=OFF"
 
 script:
   - mkdir build && cd build
