@@ -32,13 +32,6 @@ int main(int argc, char* const argv[]) {
     krims::NumCompConstants::default_failure_action =
           krims::NumCompActionType::ThrowVerbose;
 
-    // Increase numerical tolerance a little (1000*MachineEpsilon)
-    // krims::NumCompConstants::default_tolerance_factor = 1000.;
-    //
-    // TODO to be more compatible with original tests increase
-    // even further for now. One should however tune this better.
-    krims::NumCompConstants::default_tolerance_factor = 4503.6;
-
     // Run catch:
     int result = Catch::Session().run(argc, argv);
     return result;

@@ -100,7 +100,8 @@ template <typename Matrix>
 void TestingLibrary<Matrix>::run_checks() const {
     // Shorter aliases:
     const NumCompAccuracyLevel high = NumCompAccuracyLevel::Higher;
-    const NumCompAccuracyLevel extreme = NumCompAccuracyLevel::Extreme;
+    const NumCompAccuracyLevel low = NumCompAccuracyLevel::Lower;
+    const NumCompAccuracyLevel sloppy = NumCompAccuracyLevel::Sloppy;
     const NumCompAccuracyLevel eps = NumCompAccuracyLevel::MachinePrecision;
 
     // Test construction from initialiser list
@@ -132,19 +133,19 @@ void TestingLibrary<Matrix>::run_checks() const {
 
     // Standard operations and norms
     CHECK(rc::check(m_prefix + "l1 norm",
-                    m_gen.generate(comptests::test_norm_l1, extreme)));
+                    m_gen.generate(comptests::test_norm_l1, eps)));
 
     CHECK(rc::check(m_prefix + "linf norm",
-                    m_gen.generate(comptests::test_norm_linf, extreme)));
+                    m_gen.generate(comptests::test_norm_linf)));
 
     CHECK(rc::check(m_prefix + "Frobenius norm",
-                    m_gen.generate(comptests::test_norm_frobenius, extreme)));
+                    m_gen.generate(comptests::test_norm_frobenius)));
 
     CHECK(rc::check(m_prefix + "accumulate function",
-                    m_gen.generate(comptests::test_accumulate, high)));
+                    m_gen.generate(comptests::test_accumulate, low)));
 
     CHECK(rc::check(m_prefix + "trace calculation",
-                    m_gen.generate(comptests::test_trace, high)));
+                    m_gen.generate(comptests::test_trace, low)));
 
     // Operations
     CHECK(rc::check(m_prefix + "Multiplication by scalar",
@@ -155,9 +156,9 @@ void TestingLibrary<Matrix>::run_checks() const {
                     m_gen.generate(comptests::template test_add<Matrix>)));
     CHECK(rc::check(m_prefix + "Subtract a matrix",
                     m_gen.generate(comptests::template test_subtract<Matrix>)));
-    CHECK(rc::check(
-          m_prefix + "Matrix multiplication",
-          m_gen.generate(comptests::template test_multiply_by<Matrix>)));
+    CHECK(rc::check(m_prefix + "Matrix multiplication",
+                    m_gen.generate(comptests::template test_multiply_by<Matrix>,
+                                   sloppy)));
 }
 
 }  // namespace stored_matrix_tests

@@ -50,7 +50,7 @@ TEST_CASE("ArmadilloMatrix class", "[ArmadilloMatrix]") {
 
         // Decrease tolerance:
         auto lowertol = NumCompConstants::change_temporary(
-              00.1 * krims::NumCompConstants::default_tolerance_factor);
+              0.1 * krims::NumCompConstants::default_tolerance_factor);
 
         // Run tests:
         testinglib("ArmadilloMatrix: ").run_checks();

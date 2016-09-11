@@ -51,7 +51,9 @@ TEST_CASE("ScaleView", "[ScaleView]") {
 
     // Generator for the args
     auto args_generator = [] {
-        scalar_type fac = *gen::arbitrary<scalar_type>().as("Scaling factor");
+        scalar_type fac = *gen::scale(0.77, gen::arbitrary<scalar_type>())
+                                 .as("Scaling factor");
+        RC_PRE(std::abs(fac) < 1e14);
         stored_matrix_type mat =
               *gen::arbitrary<stored_matrix_type>().as("Inner matrix");
         return std::make_pair(mat, fac);

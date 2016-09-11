@@ -36,7 +36,17 @@ TEST_CASE("LazyMatrixProduct", "[LazyMatrixProduct]") {
     typedef SmallMatrix<scalar_type> stored_matrix_type;
     typedef stored_matrix_type model_matrix_type;
 
+    // TODO run the lazy_matrix_tests TestingLibrary run_checks on
+    // one kind of lazy_matrix_product (maybe with only one or two internal
+    // matrices under full or even tighter accuracy bounds (see
+    // View tests for example)
+
     SECTION("Random function test") {
+        // Increase numeric tolerance for this scope,
+        // ie results need to be less exact for passing
+        auto highertol = NumCompConstants::change_temporary(
+              10. * krims::NumCompConstants::default_tolerance_factor);
+
         auto random_test = [] {
             model_matrix_type in(2, 3);
             in(0, 0) = 3;

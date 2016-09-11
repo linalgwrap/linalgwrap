@@ -501,7 +501,7 @@ struct StatefulTestingLibrary {
     void run_check(const model_type& initial_state, GenFunc&& generation_func,
                    double scale = 1.0) const {
 
-        //! The global space used for stroing matrices the lazy matrix
+        //! The global space used for strong matrices the lazy matrix
         //  expressions point to indirectly
         std::list<stored_matrix_type> stored_matrices;
 

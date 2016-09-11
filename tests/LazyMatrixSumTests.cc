@@ -70,7 +70,17 @@ TEST_CASE("LazyMatrixSum", "[LazyMatrixSum]") {
         REQUIRE(rc::check("Test adding terms to empty sum", test_add_to_empty));
     }
 
+    // TODO run the lazy_matrix_tests TestingLibrary run_checks on
+    // one kind of lazy_matrix_sum (maybe with only one or two internal
+    // matrices under full or even tighter accuracy bounds (see
+    // View tests for example)
+
     SECTION("Random function test") {
+        // Increase numeric tolerance for this scope,
+        // ie results need to be less exact for passing
+        auto highertol = NumCompConstants::change_temporary(
+              10. * krims::NumCompConstants::default_tolerance_factor);
+
         auto random_test = [] {
             // The initial value:
             model_matrix_type in(2, 3);
