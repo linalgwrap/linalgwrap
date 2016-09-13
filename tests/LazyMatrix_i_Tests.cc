@@ -89,6 +89,11 @@ TEST_CASE("LazyMatrix_i abstract class", "[LazyMatrix_i]") {
                                                   decltype(args_generator())>
               testlib;
 
+        // Decrease numeric tolerance for this scope,
+        // ie results need to be more exact for passing
+        auto lowertol = NumCompConstants::change_temporary(
+              0.05 * krims::NumCompConstants::default_tolerance_factor);
+
         testlib{args_generator, lazy_generator, model_generator,
                 "LazyMatrix_i: "}
               .run_checks();

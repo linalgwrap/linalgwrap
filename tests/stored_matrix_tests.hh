@@ -149,7 +149,7 @@ void TestingLibrary<Matrix>::run_checks() const {
 
     // Operations
     CHECK(rc::check(m_prefix + "Multiplication by scalar",
-                    m_gen.generate(comptests::test_mutiply_scalar)));
+                    m_gen.generate(comptests::test_multiply_scalar)));
     CHECK(rc::check(m_prefix + "Divide by scalar",
                     m_gen.generate(comptests::test_divide_scalar)));
     CHECK(rc::check(m_prefix + "Add a matrix",

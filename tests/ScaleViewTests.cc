@@ -51,7 +51,7 @@ TEST_CASE("ScaleView", "[ScaleView]") {
 
     // Generator for the args
     auto args_generator = [] {
-        scalar_type fac = *gen::scale(0.77, gen::arbitrary<scalar_type>())
+        scalar_type fac = *gen::scale(0.66, gen::arbitrary<scalar_type>())
                                  .as("Scaling factor");
         RC_PRE(std::abs(fac) < 1e14);
         stored_matrix_type mat =
@@ -63,6 +63,15 @@ TEST_CASE("ScaleView", "[ScaleView]") {
     auto model_generator = [](std::pair<stored_matrix_type, scalar_type> t) {
         return t.second * t.first;
     };
+
+    // Decrease numeric tolerance for this scope,
+    // ie results need to be more exact for passing
+    // Note: Unlike BlockView and TransposeView we cannot go as low as
+    // 0.01 * default here, since this gives numerical trouble if the
+    // scaling factor in the args_generator above is chosen too large
+    // and  the inner matrix contains small entries.
+    auto lowertol = NumCompConstants::change_temporary(
+          0.1 * krims::NumCompConstants::default_tolerance_factor);
 
     // Generators for the test case views:
     typedef view_tests::StandardViewGenerators<TestTypes, scalar_type>
@@ -79,11 +88,6 @@ TEST_CASE("ScaleView", "[ScaleView]") {
 
         // Generator for the stored view
         standard_generators::stored_view_generator svg(make_view);
-
-        // Decrease numeric tolerance for this scope,
-        // ie results need to be more exact for passing
-        auto lowertol = NumCompConstants::change_temporary(
-              0.1 * krims::NumCompConstants::default_tolerance_factor);
 
         // Test library for the stored view
         testlib{args_generator, svg, model_generator,
@@ -102,11 +106,6 @@ TEST_CASE("ScaleView", "[ScaleView]") {
 
         // Generator for the lazy view
         standard_generators::lazy_view_generator lvg(make_view);
-
-        // Decrease numeric tolerance for this scope,
-        // ie results need to be more exact for passing
-        auto lowertol = NumCompConstants::change_temporary(
-              0.1 * krims::NumCompConstants::default_tolerance_factor);
 
         // Test library for the stored view
         testlib lib{args_generator, lvg, model_generator,
@@ -127,11 +126,6 @@ TEST_CASE("ScaleView", "[ScaleView]") {
 
         // Generator for the scale-view view
         standard_generators::view_view_generator vvg(make_view);
-
-        // Decrease numeric tolerance for this scope,
-        // ie results need to be more exact for passing
-        auto lowertol = NumCompConstants::change_temporary(
-              0.1 * krims::NumCompConstants::default_tolerance_factor);
 
         // Test library for the scale-view view
         testlib lib{args_generator, vvg, model_generator,

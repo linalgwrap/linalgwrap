@@ -36,10 +36,68 @@ TEST_CASE("LazyMatrixProduct", "[LazyMatrixProduct]") {
     typedef SmallMatrix<scalar_type> stored_matrix_type;
     typedef stored_matrix_type model_matrix_type;
 
-    // TODO run the lazy_matrix_tests TestingLibrary run_checks on
-    // one kind of lazy_matrix_product (maybe with only one or two internal
-    // matrices under full or even tighter accuracy bounds (see
-    // View tests for example)
+    SECTION("Default lazy matrix tests") {
+        typedef double scalar_type;
+        typedef SmallMatrix<scalar_type> stored_matrix_type;
+        typedef typename stored_matrix_type::size_type size_type;
+        typedef LazyMatrixWrapper<stored_matrix_type, stored_matrix_type>
+              lazy_matrix_type;
+        typedef LazyMatrixProduct<stored_matrix_type> product_type;
+
+        // Generator for the args
+        auto args_generator = []() {
+            stored_matrix_type mat1 =
+                  *gen::scale(0.8, gen::arbitrary<stored_matrix_type>())
+                         .as("Matrix factor 1");
+
+            // The size of the other matrix to multiply mat1 with:
+            // Note: the RHS of inRange is exclusive
+            auto othersize = *gen::inRange<size_type>(
+                                    1, TestConstants::max_matrix_size + 1)
+                                    .as("Number of columns of the 2nd matrix");
+
+            stored_matrix_type mat2 =
+                  *gen::scale(0.8, gen::fixed_size<stored_matrix_type>(
+                                         mat1.n_cols(), othersize))
+                         .as("Matrix factor 2");
+
+            return std::make_pair(mat1, mat2);
+        };
+
+        // Generator for the model:
+        auto model_generator = [](
+              std::pair<stored_matrix_type, stored_matrix_type> p) {
+            stored_matrix_type res(p.first.n_rows(), p.second.n_cols(), false);
+            matrix_tests::matrix_product(p.first, p.second, res);
+            return res;
+        };
+
+        // Generator for the sut:
+        auto sut_generator =
+              [](std::pair<stored_matrix_type, stored_matrix_type> p) {
+                  lazy_matrix_type lm1 = lazy_matrix_type{std::move(p.first)};
+                  lazy_matrix_type lm2 = lazy_matrix_type{std::move(p.second)};
+                  product_type prod{lm1};
+                  prod.push_factor(lm2);
+                  return prod;
+              };
+
+        typedef lazy_matrix_tests::TestingLibrary<product_type,
+                                                  decltype(args_generator())>
+              testinglib;
+
+        // Increase numeric tolerance for this scope,
+        // ie results need to be less exact for passing
+        // Smaller tolerance values do not work here,
+        // since sometimes we have have rather in the matrices generated
+        // by args_generator already.
+        auto highertol = NumCompConstants::change_temporary(
+              5. * krims::NumCompConstants::default_tolerance_factor);
+
+        testinglib{args_generator, sut_generator, model_generator,
+                   "LazyMatrixProduct: "}
+              .run_checks();
+    }
 
     SECTION("Random function test") {
         // Increase numeric tolerance for this scope,

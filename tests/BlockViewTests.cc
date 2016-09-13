@@ -91,6 +91,11 @@ TEST_CASE("BlockView", "[BlockView]") {
         return ret;
     };
 
+    // Decrease numeric tolerance for this scope.
+    // ie results need to be exact up to a machine epsilon for passing
+    auto lowertol = NumCompConstants::change_temporary(
+          0.01 * krims::NumCompConstants::default_tolerance_factor);
+
     // Generators for the test case views:
     typedef view_tests::StandardViewGenerators<
           TestTypes, std::pair<range_type, range_type>>
@@ -111,11 +116,6 @@ TEST_CASE("BlockView", "[BlockView]") {
         // Generator for the stored view
         standard_generators::stored_view_generator svg(make_view);
 
-        // Decrease numeric tolerance for this scope,
-        // ie results need to be more exact for passing
-        auto lowertol = NumCompConstants::change_temporary(
-              0.1 * krims::NumCompConstants::default_tolerance_factor);
-
         // Test library for the stored view
         testlib{args_generator, svg, model_generator,
                 "BlockView(stored matrix): "}
@@ -134,11 +134,6 @@ TEST_CASE("BlockView", "[BlockView]") {
 
         // Generator for the lazy view
         standard_generators::lazy_view_generator lvg(make_view);
-
-        // Decrease numeric tolerance for this scope,
-        // ie results need to be more exact for passing
-        auto lowertol = NumCompConstants::change_temporary(
-              0.1 * krims::NumCompConstants::default_tolerance_factor);
 
         // Test library for the lazy view
         testlib lib{args_generator, lvg, model_generator,
@@ -162,12 +157,6 @@ TEST_CASE("BlockView", "[BlockView]") {
 
         // Generator for the scale-view view
         standard_generators::view_view_generator vvg(make_view);
-
-        // Decrease numeric tolerance for this scope,
-        // ie results need to be more exact for passing
-        auto lowertol = NumCompConstants::change_temporary(
-              0.1 * krims::NumCompConstants::default_tolerance_factor);
-
         // Test library for the scale-view view
         testlib lib{args_generator, vvg, model_generator,
                     "BlockView(inner stored view): "};

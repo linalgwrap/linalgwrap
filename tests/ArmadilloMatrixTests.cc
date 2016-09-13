@@ -48,7 +48,8 @@ TEST_CASE("ArmadilloMatrix class", "[ArmadilloMatrix]") {
         typedef typename stored_matrix_tests::TestingLibrary<matrix_type>
               testinglib;
 
-        // Decrease tolerance:
+        // Decrease tolerance to require a more accurate numerical agreement
+        // for passing.
         auto lowertol = NumCompConstants::change_temporary(
               0.1 * krims::NumCompConstants::default_tolerance_factor);
 

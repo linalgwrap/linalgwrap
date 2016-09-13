@@ -70,10 +70,56 @@ TEST_CASE("LazyMatrixSum", "[LazyMatrixSum]") {
         REQUIRE(rc::check("Test adding terms to empty sum", test_add_to_empty));
     }
 
-    // TODO run the lazy_matrix_tests TestingLibrary run_checks on
-    // one kind of lazy_matrix_sum (maybe with only one or two internal
-    // matrices under full or even tighter accuracy bounds (see
-    // View tests for example)
+    SECTION("Default lazy matrix tests") {
+        typedef double scalar_type;
+        typedef SmallMatrix<scalar_type> stored_matrix_type;
+        typedef typename stored_matrix_type::size_type size_type;
+        typedef LazyMatrixWrapper<stored_matrix_type, stored_matrix_type>
+              lazy_matrix_type;
+        typedef LazyMatrixSum<stored_matrix_type> sum_type;
+
+        // Generator for the args
+        auto args_generator = []() {
+            stored_matrix_type mat1 =
+                  *gen::arbitrary<stored_matrix_type>().as("Matrix summand 1");
+
+            stored_matrix_type mat2 = *gen::fixed_size<stored_matrix_type>(
+                                             mat1.n_rows(), mat1.n_cols())
+                                             .as("Matrix summand 2");
+
+            return std::make_pair(mat1, mat2);
+        };
+
+        // Generator for the model:
+        auto model_generator = [](
+              std::pair<stored_matrix_type, stored_matrix_type> p) {
+            stored_matrix_type res(p.first.n_rows(), p.first.n_cols(), false);
+            for (size_type i = 0; i < p.first.n_rows(); ++i) {
+                for (size_type j = 0; j < p.first.n_cols(); ++j) {
+                    res(i, j) = p.first(i, j) + p.second(i, j);
+                }
+            }
+            return res;
+        };
+
+        // Generator for the sut:
+        auto sut_generator =
+              [](std::pair<stored_matrix_type, stored_matrix_type> p) {
+                  lazy_matrix_type lm1 = lazy_matrix_type{std::move(p.first)};
+                  lazy_matrix_type lm2 = lazy_matrix_type{std::move(p.second)};
+                  sum_type sum{lm1};
+                  sum.push_term(lm2);
+                  return sum;
+              };
+
+        typedef lazy_matrix_tests::TestingLibrary<sum_type,
+                                                  decltype(args_generator())>
+              testinglib;
+
+        testinglib{args_generator, sut_generator, model_generator,
+                   "LazyMatrixSum: "}
+              .run_checks();
+    }
 
     SECTION("Random function test") {
         // Increase numeric tolerance for this scope,

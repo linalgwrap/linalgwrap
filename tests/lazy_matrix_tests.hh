@@ -175,27 +175,26 @@ class TestingLibrary {
 
 template <typename LazyMatrix, typename LazyGenArg>
 void TestingLibrary<LazyMatrix, LazyGenArg>::run_checks() const {
-    const NumCompAccuracyLevel eps10 =
-          NumCompAccuracyLevel::TenMachinePrecision;
     const NumCompAccuracyLevel low = NumCompAccuracyLevel::Lower;
+    const NumCompAccuracyLevel sloppy = NumCompAccuracyLevel::Sloppy;
 
     // Test basic equivalence:
     CHECK(rc::check(m_prefix + "Equivalence of matrix to model expression",
-                    m_gen.generate(comptests::test_equivalence, eps10)));
+                    m_gen.generate(comptests::test_equivalence)));
 
     // Read-only element access
     CHECK(rc::check(m_prefix + "Element access via () and []",
-                    m_gen.generate(comptests::test_element_access, eps10)));
+                    m_gen.generate(comptests::test_element_access)));
     CHECK(rc::check(m_prefix + "Element access via extract_block",
-                    m_gen.generate(comptests::test_extract_block, eps10)));
+                    m_gen.generate(comptests::test_extract_block)));
     CHECK(rc::check(m_prefix + "Data access via add_block_to",
-                    m_gen.generate(comptests::test_add_block_to, eps10)));
+                    m_gen.generate(comptests::test_add_block_to)));
     CHECK(rc::check(m_prefix + "Read-only iterator of small matrices",
-                    m_gen.generate(comptests::test_readonly_iterator, eps10)));
+                    m_gen.generate(comptests::test_readonly_iterator)));
 
     // Standard operations and norms
     CHECK(rc::check(m_prefix + "l1 norm",
-                    m_gen.generate(comptests::test_norm_l1, eps10)));
+                    m_gen.generate(comptests::test_norm_l1)));
 
     CHECK(rc::check(m_prefix + "linf norm",
                     m_gen.generate(comptests::test_norm_linf)));
@@ -214,7 +213,7 @@ void TestingLibrary<LazyMatrix, LazyGenArg>::run_checks() const {
           lazy_matrix_type;
 
     CHECK(rc::check(m_prefix + "Multiplication by scalar",
-                    m_gen.generate(comptests::test_mutiply_scalar)));
+                    m_gen.generate(comptests::test_multiply_scalar)));
     CHECK(rc::check(m_prefix + "Divide by scalar",
                     m_gen.generate(comptests::test_divide_scalar)));
     CHECK(rc::check(
@@ -237,7 +236,7 @@ void TestingLibrary<LazyMatrix, LazyGenArg>::run_checks() const {
     CHECK(rc::check(
           m_prefix + "Multiply a lazy matrix",
           m_gen.generate(comptests::template test_multiply_by<lazy_matrix_type>,
-                         low)));
+                         sloppy)));
 }
 
 }  // namespace lazy_matrix_tests

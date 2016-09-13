@@ -168,7 +168,7 @@ struct ComparativeTests {
 
     /** Test whether multiplication by a scalar yields the same
      *  values in model and sut */
-    static void test_mutiply_scalar(
+    static void test_multiply_scalar(
           const compmat_type& model, const sutmat_type& sut,
           const NumCompAccuracyLevel tolerance = NumCompAccuracyLevel::Default);
 
@@ -438,7 +438,7 @@ void ComparativeTests<CompMatrix, SutMatrix>::test_add_block_to(
                            .as("Start col for add_block_to");
 
     // Generate an arbitrary factor:
-    auto c_this = *gen::arbitrary<scalar_type>().as("c_this");
+    auto c_this = *gen::scale(0.7, gen::arbitrary<scalar_type>()).as("c_this");
 
     // Generate an arbitrary matrix of this size:
     block_matrix_type inmat =
@@ -609,11 +609,11 @@ void ComparativeTests<CompMatrix, SutMatrix>::test_accumulate(
 }
 
 template <typename CompMatrix, typename SutMatrix>
-void ComparativeTests<CompMatrix, SutMatrix>::test_mutiply_scalar(
+void ComparativeTests<CompMatrix, SutMatrix>::test_multiply_scalar(
       const compmat_type& model, const sutmat_type& sut,
       const NumCompAccuracyLevel tolerance) {
-    // Generate an arbitrary factor:
-    auto c = *gen::arbitrary<scalar_type>().as("Coefficient");
+    // Generate an arbitrary factor, but not too large
+    auto c = *gen::scale(0.6, gen::arbitrary<scalar_type>()).as("Coefficient");
 
     // Do the multiplication:
     auto res = sut * c;
@@ -634,8 +634,8 @@ template <typename CompMatrix, typename SutMatrix>
 void ComparativeTests<CompMatrix, SutMatrix>::test_divide_scalar(
       const compmat_type& model, const sutmat_type& sut,
       const NumCompAccuracyLevel tolerance) {
-    // Generate an arbitrary factor:
-    auto c = *gen::nonZero<scalar_type>().as("Coefficient");
+    // Generate an arbitrary factor, but not too large
+    auto c = *gen::scale(0.6, gen::nonZero<scalar_type>()).as("Coefficient");
 
     // Do the multiplication:
     auto res = sut / c;
