@@ -45,6 +45,13 @@ namespace io {
 template <typename Scalar>
 class DataWriter_i : public krims::Subscribable {
  public:
+  DataWriter_i() = default;
+  DataWriter_i(const DataWriter_i&) = default;
+  DataWriter_i(DataWriter_i&&) = default;
+  DataWriter_i& operator=(const DataWriter_i&) = default;
+  DataWriter_i& operator=(DataWriter_i&&) = default;
+  virtual ~DataWriter_i() = default;
+
   /** Write a labelled matrix to the ostream under the format represented by
    * this class.
    *  Use the provided label string to indicate the matrix
