@@ -86,7 +86,7 @@ install(FILES "${linalgwrap_BINARY_DIR}/src/linalgwrap/version_defs.hh"
 
 # Export the target specifications for linalgwrap.
 export(EXPORT LinalgwrapTargets
-	FILE "${PROJECT_BINARY_DIR}/linalgwrapTargets.cmake"
+	FILE "${linalgwrap_BINARY_DIR}/linalgwrapTargets.cmake"
 	NAMESPACE Upstream::
 )
 
